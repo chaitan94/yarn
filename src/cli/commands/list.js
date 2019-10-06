@@ -202,12 +202,13 @@ export async function run(config: Config, reporter: Reporter, flags: Object, arg
     workspaceLayout,
   });
 
-  let activePatterns = [];
+  let activePatterns = depRequests
+    .filter(req => req.hint !== 'workspaces' && req.hint !== 'resolution')
+    .map(req => req.pattern);
+
   if (config.production) {
     const devDeps = getDevDeps(manifest);
-    activePatterns = patterns.filter(pattern => !devDeps.has(pattern));
-  } else {
-    activePatterns = patterns;
+    activePatterns = activePatterns.filter(pattern => !devDeps.has(pattern));
   }
 
   const opts: ListOptions = {
